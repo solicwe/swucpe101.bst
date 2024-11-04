@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search Tree For CPE101</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #273746;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #17202a;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .control-panel {
+            margin: 20px 0;
+        }
+        .control-panel input, .control-panel button {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 5px;
+            background-color: #17202a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .control-panel button:hover {
+            background-color: #000000;
+            transform: scale(1.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            background-color: white;
+            margin: 20px 0;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #34495e;
+            padding-top: 60px;
+            transition: 0.5s;
+            z-index: 1000;
+        }
+        .sidebar .box {
+            background-color: #17202a;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+        .sidebar button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .sidebar button:hover {
+            background-color: #808b96;
+            border-radius: 10px;
+            transform: scale(1.1);
+        }
+        .open-sidebar {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            background-color: #34495e;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .open-sidebar:hover {
+            background-color: #000000;
+            transform: scale(1.1);
+        }
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 36px;
+            cursor: pointer;
+            color: white;
+            background-color: #ff5f5f;
+            border-radius: 5px;
+            padding: 7px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .close-btn:hover {
+            background-color: #ff3333;
+            transform: scale(1.1);
+        }
+        #processLogContainer {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            border: 1px solid #17202a;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #processLog {
+            font-size: 14px;
+            color: #333;
+            padding: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #17202a;
+            width: 80%;
+            max-width: 600px;
+        }
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tutorial {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #17202a;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            text-align: left;
+        }
+        .tutorial h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: white;
+        }
+        .tutorial p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #dddddd;
+        }
+        #deleteChoicePanel {
+            display: none;
+            margin-top: 20px;
+            background-color: #17202a;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+        #deleteChoicePanel button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #17202a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-right: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        #deleteChoicePanel button:hover {
+            background-color: #000000;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Binary Search Tree For CPE101</h1>
+    </header>
+    <div id="mySidebar" class="sidebar">
+        <span class="close-btn" onclick="closeSidebar()">&times;</span>
+        <div class="box">
+            <button onclick="generateRandomTree()">Generate Random Tree</button>
+        </div>
+        <div class="box">
+            <button onclick="openModal()">Show Group Members</button>
+        </div>
+    </div>
+
+    <span class="open-sidebar" onclick="openSidebar()">Optional</span>
+
+    <div class="control-panel">
+        <input type="text" id="nodeValue" placeholder="Enter value" onkeydown="handleEnter(event)">
+        <button onclick="insertNode()">Insert</button>
+        <button onclick="toggleDeleteOptions()">Delete</button>
+        <button onclick="findNode()">Find</button>
+        <button onclick="printInOrder()">Inorder</button>
+        <button onclick="printPreOrder()">Preorder</button>
+        <button onclick="printPostOrder()">Postorder</button>
+        <button onclick="clearAll()">ClearAll</button>
+    </div>
+
+    <div id="deleteChoicePanel">
+        <h3>Choose Deletion Method</h3>
+        <button onclick="deleteNode(true)">Delete using Predecessor</button>
+        <button onclick="deleteNode(false)">Delete using Successor</button>
+    </div>
+
+    <canvas id="bstCanvas" width="1000" height="500"></canvas>
+
+    <div id="processLogContainer">
+        <h3>กระบวนการทำงาน</h3>
+        <div id="processLog"></div>
+    </div>
+
+    <section class="tutorial">
+        <h2>คำสั่งต่างๆ ในโปรเเกรม</h2>
+        <p><strong>Insert:</strong> เพิ่มโหนดที่ต้องการลง ถ้ามีอยู่เเล้วจะนับเป็น จำนวนซ้ำ </p>
+        <p><strong>Delete:</strong> ลบโหนดที่ต้องการ โดยการเลือกวิธีลบ 2 วิธี </p>
+        <p><strong>Predecessor:</strong> วิธีการลบ โดยจะเลือกโหนดที่มากที่สุดฝั่งซ้ายขึ้นมาเเทนโหนดที่ลบไป </p>
+        <p><strong>Successor:</strong> วิธีการลบ โดยจะเลือกโหนดที่น้อยที่สุดฝั่งขวาขึ้นมาเเทนโหนดที่ลบไป </p>
+        <p><strong>Find:</strong> ค้นหาโหนดต้องการ </p>
+        <p><strong>Inorder:</strong> เป็นการเรียงลำดับจากน้อยไปมาก </p>
+        <p><strong>Preorder:</strong> เป็นการเรียงลำดับจากน้อยไปมากเเต่มีการนับตั้งเเต่ราก เเละโหนดที่ผ่าน </p>
+        <p><strong>Postorder:</strong> นับตั้งเเต่โหนดล่างสุดของของเเต่ละฝั่งจาก น้อยที่สุดไปมากที่สุด ขึ้นมาหาราก </p>
+        <p><strong>Generate Random Tree:</strong> สร้าง BinaryTree เเบบสุ่มที่สามารถกำหนดจำนวนโหนดเองได้ </p>
+        <p><strong>Show Group Members:</strong> เเสดงรายชื่อสมาชิก </p>
+        <p><strong>กระบวนการทำงาน:</strong> โชว์ขั้นตอนเเต่ละอย่างที่เกิดขึ้นเป็นลำดับ </p>
+        <p><strong>Zoom and Pan:</strong> สามารถใช้การขยายเเละเลื่อนในการมองได้ </p>
+    </section>
+
+    <div id="groupMembersModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>สมาชิกกลุ่ม</h3>
+            <p><strong>สมาชิกคนที่ 1:</strong> สรวิศ ผดุงกุล - 67109010200</p>
+            <p><strong>สมาชิกคนที่ 2:</strong> ภาณุ  พรธวัลวงศา - 67109010398</p>
+            <p><strong>สมาชิกคนที่ 3:</strong> ภูผา พรมน้อย - 67109010298</p>
+        </div>
+    </div>
+
+    <script>
+        function openSidebar() {
+            document.getElementById("mySidebar").style.left = "0";
+            document.querySelector(".open-sidebar").style.display = "none";
+        }
+
+        function closeSidebar() {
+            document.getElementById("mySidebar").style.left = "-250px";
+            document.querySelector(".open-sidebar").style.display = "inline-block";
+        }
+
+        function toggleDeleteOptions() {
+            const deletePanel = document.getElementById('deleteChoicePanel');
+            deletePanel.style.display = deletePanel.style.display === "none" ? "block" : "none";
+        }
+
+        function logProcess(message) {
+        const processLog = document.getElementById('processLog');
+        const logEntry = document.createElement('div');
+        
+        
+        logEntry.innerHTML = `
+            <div style="border-bottom: 1px solid #ddd; padding: 8px 0; color: #333; font-size: 16px; line-height: 1.5;">
+                ${message}
+            </div>
+        `;
+        
+        processLog.appendChild(logEntry);
+        processLog.scrollTop = processLog.scrollHeight;
+    }
+        function clearAll() {
+            bst.root = null;
+            document.getElementById('processLog').innerHTML = '';
+            bst.visualize(transform);
+            
+        }
+
+        function openModal() {
+            document.getElementById("groupMembersModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("groupMembersModal").style.display = "none";
+        }
+
+        class Node {
+            constructor(value) {
+                this.value = value;
+                this.count = 1;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        class BinarySearchTree {
+        constructor() {
+            this.root = null;
+        }
+
+        insert(value) {
+            logProcess(`<strong>เพิ่มโหนดที่มีค่า</strong> ${value}`);
+            if (!this.root) {
+                this.root = new Node(value);
+                logProcess(`ตั้งค่าโหนด ${value} <strong>เป็นรากของต้นไม้</strong>`);
+            } else {
+                this.insertNode(this.root, value);
+            }
+        }
+
+        insertNode(node, value) {
+            if (value === node.value) {
+                node.count++;
+                logProcess(`เจอโหนด ${value} <strong>ซ้ำ</strong> เพิ่มจำนวนเป็น ${node.count}`);
+            } else if (value < node.value) {
+                logProcess(`ค่า ${value} <strong>น้อยกว่าโหนด</strong> ${node.value} ย้ายไปซ้าย`);
+                if (!node.left) {
+                    node.left = new Node(value);
+                    logProcess(`เพิ่มโหนด ${value} ทางซ้ายของโหนด ${node.value}`);
+                } else {
+                    this.insertNode(node.left, value);
+                }
+            } else {
+                logProcess(`ค่า ${value} <strong>มากกว่าโหนด</strong> ${node.value} ย้ายไปขวา`);
+                if (!node.right) {
+                    node.right = new Node(value);
+                    logProcess(`เพิ่มโหนด ${value} ทางขวาของโหนด ${node.value}`);
+                } else {
+                    this.insertNode(node.right, value);
+                }
+            }
+        }
+
+        delete(value, usePredecessor = true) {
+            logProcess(`<strong>ลบโหนดที่มีค่า</strong> ${value} โดยใช้ ${usePredecessor ? '<strong>Predecessor</strong>' : '<strong>Successor</strong>'}`);
+            this.root = this.deleteNode(this.root, value, usePredecessor);
+        }
+
+        deleteNode(node, value, usePredecessor) {
+            if (!node) {
+                logProcess(`<strong>ไม่พบโหนดที่มีค่า</strong> ${value}`);
+                return null;
+            }
+
+            if (value < node.value) {
+                logProcess(`ค่า ${value} <strong>น้อยกว่าโหนด</strong> ${node.value} ย้ายไปซ้าย`);
+                node.left = this.deleteNode(node.left, value, usePredecessor);
+                return node;
+            } else if (value > node.value) {
+                logProcess(`ค่า ${value} <strong>มากกว่าโหนด</strong> ${node.value} ย้ายไปขวา`);
+                node.right = this.deleteNode(node.right, value, usePredecessor);
+                return node;
+            } else {
+                logProcess(`พบโหนด ${value} กำลังลบ`);
+                if (node.count > 1) {
+                    node.count--;
+                    logProcess(`ลดจำนวนโหนด ${value} ลง เหลือ ${node.count}`);
+                    return node;
+                }
+
+                if (!node.left && !node.right) {
+                    logProcess(`โหนด ${value} <strong>ไม่มีลูก</strong> ลบทิ้งเลย`);
+                    return null;
+                }
+
+                if (!node.left) {
+                    logProcess(`โหนด ${value} มีลูกทางขวา <strong>ข้ามโหนดนี้</strong>`);
+                    return node.right;
+                } else if (!node.right) {
+                    logProcess(`โหนด ${value} มีลูกทางซ้าย <strong>ข้ามโหนดนี้</strong>`);
+                    return node.left;
+                }
+
+                const replacementNode = usePredecessor ? this.findMaxNode(node.left) : this.findMinNode(node.right);
+                logProcess(`แทนที่โหนด ${value} ด้วยค่า ${replacementNode.value} จาก ${usePredecessor ? 'โหนดก่อนหน้า' : 'โหนดถัดไป'}`);
+                node.value = replacementNode.value;
+                node.count = replacementNode.count;
+                if (usePredecessor) {
+                    node.left = this.deleteNode(node.left, replacementNode.value, usePredecessor);
+                } else {
+                    node.right = this.deleteNode(node.right, replacementNode.value, usePredecessor);
+                }
+                return node;
+            }
+        }
+
+        find(value) {
+            logProcess(`<strong>ค้นหาโหนดที่มีค่า</strong> ${value}`);
+            const result = this.search(this.root, value);
+            logProcess(result ? `<strong>พบโหนด</strong> ${value}` : `<strong>ไม่พบโหนด</strong> ${value}`);
+            return result;
+        }
+
+        search(node, value) {
+            if (!node || node.value === value) {
+                return node;
+            }
+            if (value < node.value) {
+                logProcess(`ค่า ${value} <strong>น้อยกว่าโหนด</strong> ${node.value} ย้ายไปซ้าย`);
+                return this.search(node.left, value);
+            } else {
+                logProcess(`ค่า ${value} <strong>มากกว่าโหนด</strong> ${node.value} ย้ายไปขวา`);
+                return this.search(node.right, value);
+            }
+        }
+
+            findMaxNode(node) {
+                while (node && node.right) {
+                    node = node.right;
+                }
+                return node;
+            }
+
+            findMinNode(node) {
+                while (node && node.left) {
+                    node = node.left;
+                }
+                return node;
+            }
+
+            inOrder(node, result = []) {
+                if (node) {
+                    this.inOrder(node.left, result);
+                    for (let i = 0; i < node.count; i++) {
+                        result.push(node.value);
+                    }
+                    this.inOrder(node.right, result);
+                }
+                return result;
+            }
+
+            preOrder(node, result = []) {
+                if (node) {
+                    for (let i = 0; i < node.count; i++) {
+                        result.push(node.value);
+                    }
+                    this.preOrder(node.left, result);
+                    this.preOrder(node.right, result);
+                }
+                return result;
+            }
+
+            postOrder(node, result = []) {
+                if (node) {
+                    this.postOrder(node.left, result);
+                    this.postOrder(node.right, result);
+                    for (let i = 0; i < node.count; i++) {
+                        result.push(node.value);
+                    }
+                }
+                return result;
+            }
+
+            insertBalancedArray(arr) {
+                function insertMiddle(start, end) {
+                    if (start > end) return;
+                    const mid = Math.floor((start + end) / 2);
+                    this.insert(arr[mid]);
+                    insertMiddle.call(this, start, mid - 1);
+                    insertMiddle.call(this, mid + 1, end);
+                }
+                insertMiddle.call(this, 0, arr.length - 1);
+            }
+
+            visualize(transform) {
+                const canvas = document.getElementById('bstCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.x, transform.y);
+                if (this.root) {
+                    this.drawNode(ctx, this.root, canvas.width / 2, 50, canvas.width / 4);
+                }
+                ctx.restore();
+            }
+
+            drawNode(ctx, node, x, y, offset) {
+                const radius = 20;
+                if (node) {
+                    if (node.left) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y + radius);
+                        ctx.lineTo(x - offset, y + 70 - radius);
+                        ctx.stroke();
+                        this.drawNode(ctx, node.left, x - offset, y + 70, offset / 2);
+                    }
+                    if (node.right) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y + radius);
+                        ctx.lineTo(x + offset, y + 70 - radius);
+                        ctx.stroke();
+                        this.drawNode(ctx, node.right, x + offset, y + 70, offset / 2);
+                    }
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.font = '15px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${node.value}${node.count > 1 ? `(${node.count})` : ''}`, x, y + 5);
+                }
+            }
+        }
+
+        const transform = { x: 0, y: 0, scale: 1, minScale: 0.5, maxScale: 3 };
+        const bst = new BinarySearchTree();
+
+        function insertNode() {
+            const value = parseInt(document.getElementById('nodeValue').value);
+            if (!isNaN(value)) {
+                bst.insert(value);
+                bst.visualize(transform);
+            } else {
+                alert('โปรดใส่เลขที่จะเพิ่มให้ด้วยครับ');
+            }
+        }
+
+        function handleEnter(event) {
+            if (event.key === "Enter") {
+                insertNode();
+            }
+        }
+
+        function deleteNode(usePredecessor) {
+            const value = parseInt(document.getElementById('nodeValue').value);
+            if (!isNaN(value)) {
+                bst.delete(value, usePredecessor);
+                bst.visualize(transform);
+            } else {
+                alert('โปรดใส่เลขที่จะลบให้ด้วยครับ');
+            }
+            document.getElementById("deleteChoicePanel").style.display = "none";
+        }
+
+        function findNode() {
+            const value = parseInt(document.getElementById('nodeValue').value);
+            if (!isNaN(value)) {
+                const foundNode = bst.find(value);
+                alert(foundNode ? `โหนด ${value} พบเเล้ว` : `โหนด ${value} ไม่พบ`);
+            }
+        }
+
+        function printInOrder() {
+            const result = bst.inOrder(bst.root);
+            alert(`Inorder Traversal: ${result.join(', ')}`);
+        }
+
+        function printPreOrder() {
+            const result = bst.preOrder(bst.root);
+            alert(`Preorder Traversal: ${result.join(', ')}`);
+        }
+
+        function printPostOrder() {
+            const result = bst.postOrder(bst.root);
+            alert(`Postorder Traversal: ${result.join(', ')}`);
+        }
+
+        function generateRandomTree() {
+            const numNodes = parseInt(prompt("ใส่จำนวนโหนดที่ต้องการจะสุ่ม :", 7));
+            if (isNaN(numNodes) || numNodes <= 0) {
+                alert("โปรดใส่เลขที่จะสุ่มให้ด้วยครับ");
+                return;
+            }
+            const randomValues = [];
+            for (let i = 0; i < numNodes; i++) {
+                let randomValue;
+                do {
+                    randomValue = Math.floor(Math.random() * 1000);
+                } while (randomValues.includes(randomValue));
+                randomValues.push(randomValue);
+            }
+            randomValues.sort((a, b) => a - b);
+            bst.root = null;
+            bst.insertBalancedArray(randomValues);
+            bst.visualize(transform);
+        }
+
+        const canvas = document.getElementById('bstCanvas');
+        canvas.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            const zoomIntensity = 0.1;
+            const newScale = event.deltaY < 0 ? transform.scale * (1 + zoomIntensity) : transform.scale * (1 - zoomIntensity);
+            if (newScale >= transform.minScale && newScale <= transform.maxScale) {
+                const zoomFactor = newScale / transform.scale;
+                transform.scale = newScale;
+                transform.x = event.offsetX - zoomFactor * (event.offsetX - transform.x);
+                transform.y = event.offsetY - zoomFactor * (event.offsetY - transform.y);
+                bst.visualize(transform);
+            }
+        });
+
+        let isDragging = false;
+        let startX, startY;
+        canvas.addEventListener('mousedown', (event) => {
+            isDragging = true;
+            startX = event.offsetX - transform.x;
+            startY = event.offsetY - transform.y;
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                transform.x = event.offsetX - startX;
+                transform.y = event.offsetY - startY;
+                bst.visualize(transform);
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => { isDragging = false; });
+    </script>
+</body>
+</html>
