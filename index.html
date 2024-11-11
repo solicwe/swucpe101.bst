@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Binary Search Tree For CPE101</title>
     <style>
-        body {
+       body {
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #273746;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         header {
             background-color: #17202a;
             color: white;
             padding: 20px;
+            width: 100%;
         }
         h1 {
             margin: 0;
@@ -37,6 +41,7 @@
             background-color: #000000;
             transform: scale(1.1);
         }
+        
         canvas {
             border: 1px solid #ddd;
             background-color: white;
@@ -108,20 +113,42 @@
             background-color: #ff3333;
             transform: scale(1.1);
         }
-        #processLogContainer {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 15px;
-            background-color: white;
-            border-radius: 10px;
-            border: 1px solid #17202a;
-            max-height: 200px;
-            overflow-y: auto;
+          /* Canvas and Log Container */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
-        #processLog {
+        #bstCanvas {
+            flex: 2;
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid #ddd;
+            background-color: white;
+        }
+        #processLogContainer {
+            flex: 1;
+            max-width: 300px;
+            width: 100%;
+            background-color: #1c2833;
+            color: #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-y: auto;
+            max-height: 500px;
             font-size: 14px;
-            color: #333;
-            padding: 10px;
+            white-space: pre-wrap;
+        }
+        #processLogContainer h3 {
+            color: #ffffff;
+            border-bottom: 3px solid #ffffff;
+            padding-bottom: 5px;
+            text-align: middle;
         }
         .modal {
             display: none;
@@ -227,12 +254,17 @@
         <button onclick="deleteNode(false)">Delete using Successor</button>
     </div>
 
-    <canvas id="bstCanvas" width="1000" height="500"></canvas>
-
-    <div id="processLogContainer">
-        <h3>กระบวนการทำงาน</h3>
-        <div id="processLog"></div>
+     
+     <div class="container">
+        <canvas id="bstCanvas" width="700" height="500"></canvas>
+        
+        
+        <div id="processLogContainer">
+            <h3>กระบวนการทำงาน</h3>
+            <div id="processLog"></div>
+        </div>
     </div>
+
 
     <section class="tutorial">
         <h2>คำสั่งต่างๆ ในโปรเเกรม</h2>
@@ -261,6 +293,7 @@
     </div>
 
     <script>
+        
         function openSidebar() {
             document.getElementById("mySidebar").style.left = "0";
             document.querySelector(".open-sidebar").style.display = "none";
@@ -276,24 +309,29 @@
             deletePanel.style.display = deletePanel.style.display === "none" ? "block" : "none";
         }
 
+        
         function logProcess(message) {
-        const processLog = document.getElementById('processLog');
-        const logEntry = document.createElement('div');
+    const processLog = document.getElementById('processLog');
+    
+    
+    const logEntry = document.createElement('div');
+    logEntry.style.cssText = "color: #ddd; text-align: left; padding: 5px 3;";
+
+    
+    logEntry.innerHTML = message;  
+
+    
+    processLog.appendChild(logEntry);
+
+    
+    processLog.scrollTop = processLog.scrollHeight;
+}
         
-        
-        logEntry.innerHTML = `
-            <div style="border-bottom: 1px solid #ddd; padding: 8px 0; color: #333; font-size: 16px; line-height: 1.5;">
-                ${message}
-            </div>
-        `;
-        
-        processLog.appendChild(logEntry);
-        processLog.scrollTop = processLog.scrollHeight;
-    }
         function clearAll() {
             bst.root = null;
             document.getElementById('processLog').innerHTML = '';
             bst.visualize(transform);
+            bst.countering = 0;
             
         }
 
@@ -311,89 +349,108 @@
                 this.count = 1;
                 this.left = null;
                 this.right = null;
+                
             }
         }
 
         class BinarySearchTree {
         constructor() {
             this.root = null;
+            this.countering = 0;
         }
 
+        
+        
         insert(value) {
-            logProcess(`<strong>เพิ่มโหนดที่มีค่า</strong> ${value}`);
+            this.countering++;
+            logProcess(`<strong>Activity :</strong> <strong>${this.countering}</strong>`);
+            logProcess(`<strong>Insert</strong> <strong>${value}</strong>`);
             if (!this.root) {
                 this.root = new Node(value);
-                logProcess(`ตั้งค่าโหนด ${value} <strong>เป็นรากของต้นไม้</strong>`);
+                logProcess(`<strong>${value}</strong> ถูกเพิ่มเป็นตัวเเรก <strong>${value} Is Root</strong>
+                `);
             } else {
                 this.insertNode(this.root, value);
             }
         }
 
         insertNode(node, value) {
-            if (value === node.value) {
-                node.count++;
-                logProcess(`เจอโหนด ${value} <strong>ซ้ำ</strong> เพิ่มจำนวนเป็น ${node.count}`);
-            } else if (value < node.value) {
-                logProcess(`ค่า ${value} <strong>น้อยกว่าโหนด</strong> ${node.value} ย้ายไปซ้าย`);
-                if (!node.left) {
-                    node.left = new Node(value);
-                    logProcess(`เพิ่มโหนด ${value} ทางซ้ายของโหนด ${node.value}`);
+            this.count++;
+                if (value < node.value) {
+                    logProcess(`<strong>${value}</strong> < <strong>${node.value}</strong> --> <strong>Left</strong>,`);
+                    if (!node.left) {
+                        node.left = new Node(value);
+                        logProcess(`<strong>${value}</strong> Is on <strong>Left</strong>
+                        `);
+                    } else {
+                        this.insertNode(node.left, value);
+                    }
+                } else if (value > node.value) {
+                    logProcess(`<strong>${value}</strong> > <strong>${node.value}</strong> --> <strong>Right</strong>`);
+                    if (!node.right) {
+                        node.right = new Node(value);
+                        logProcess(`<strong>${value}</strong> Is on <strong>Right</strong>
+                        `);
+                    } else {
+                        this.insertNode(node.right, value);
+                    }
                 } else {
-                    this.insertNode(node.left, value);
-                }
-            } else {
-                logProcess(`ค่า ${value} <strong>มากกว่าโหนด</strong> ${node.value} ย้ายไปขวา`);
-                if (!node.right) {
-                    node.right = new Node(value);
-                    logProcess(`เพิ่มโหนด ${value} ทางขวาของโหนด ${node.value}`);
-                } else {
-                    this.insertNode(node.right, value);
+                    node.count++;
+                    logProcess(`มี <strong>${value}</strong> อยู่เเล้ว จะถูกนับเป็นตัวซ้ำที่ ${node.count}
+                    `);
                 }
             }
-        }
 
         delete(value, usePredecessor = true) {
-            logProcess(`<strong>ลบโหนดที่มีค่า</strong> ${value} โดยใช้ ${usePredecessor ? '<strong>Predecessor</strong>' : '<strong>Successor</strong>'}`);
+            this.countering++;
+            logProcess(` `);
+            logProcess(`<strong>Activity :</strong> <strong>${this.countering}</strong>`);
+            logProcess(`<strong>Delete</strong> <strong>${value}</strong> by ${usePredecessor ? '<strong>Predecessor</strong>' : '<strong>Successor</strong>'}`);
+            
             this.root = this.deleteNode(this.root, value, usePredecessor);
         }
 
         deleteNode(node, value, usePredecessor) {
             if (!node) {
-                logProcess(`<strong>ไม่พบโหนดที่มีค่า</strong> ${value}`);
+                logProcess(`<strong>ไม่พบ</strong> <strong>${value}</strong>
+                `);
                 return null;
             }
 
             if (value < node.value) {
-                logProcess(`ค่า ${value} <strong>น้อยกว่าโหนด</strong> ${node.value} ย้ายไปซ้าย`);
+                
                 node.left = this.deleteNode(node.left, value, usePredecessor);
                 return node;
             } else if (value > node.value) {
-                logProcess(`ค่า ${value} <strong>มากกว่าโหนด</strong> ${node.value} ย้ายไปขวา`);
+                
                 node.right = this.deleteNode(node.right, value, usePredecessor);
                 return node;
             } else {
-                logProcess(`พบโหนด ${value} กำลังลบ`);
+                
+                
+                
                 if (node.count > 1) {
                     node.count--;
-                    logProcess(`ลดจำนวนโหนด ${value} ลง เหลือ ${node.count}`);
+                    logProcess(`ลดจำนวนตัวที่ซ้ำของ <strong>${value}</strong> เหลือ ${node.count}`);
                     return node;
                 }
 
                 if (!node.left && !node.right) {
-                    logProcess(`โหนด ${value} <strong>ไม่มีลูก</strong> ลบทิ้งเลย`);
+                    logProcess(`ไม่พบลูกโหนด ลบได้ทันที`);
                     return null;
                 }
 
                 if (!node.left) {
-                    logProcess(`โหนด ${value} มีลูกทางขวา <strong>ข้ามโหนดนี้</strong>`);
+                    logProcess(`<strong>${value}</strong> มีเเค่ ลูกโหนดขวา ทำการลบเเบบ <strong>Successor</strong> เเทน`);
                     return node.right;
                 } else if (!node.right) {
-                    logProcess(`โหนด ${value} มีลูกทางซ้าย <strong>ข้ามโหนดนี้</strong>`);
+                    logProcess(`<strong>${value}</strong> มีเเค่ ลูกโหนดซ้าย ทำการลบเเบบ <strong>Predecessor</strong> เเทน`);
                     return node.left;
                 }
+                
 
                 const replacementNode = usePredecessor ? this.findMaxNode(node.left) : this.findMinNode(node.right);
-                logProcess(`แทนที่โหนด ${value} ด้วยค่า ${replacementNode.value} จาก ${usePredecessor ? 'โหนดก่อนหน้า' : 'โหนดถัดไป'}`);
+                logProcess(`แทนที่ <strong>${value}</strong> ด้วย ${usePredecessor ? '<strong>ค่าที่มากที่สุดจากฝั่งซ้าย</strong>' : '<strong>ค่าที่น้อยที่สุดจากฝั่งขวา</strong>'} คือ ${replacementNode.value} `);
                 node.value = replacementNode.value;
                 node.count = replacementNode.count;
                 if (usePredecessor) {
@@ -406,9 +463,13 @@
         }
 
         find(value) {
-            logProcess(`<strong>ค้นหาโหนดที่มีค่า</strong> ${value}`);
+            this.countering++;
+            logProcess(`<strong>Activity :</strong> <strong>${this.countering}</strong>`);
+            logProcess(`<strong>ค้นหาโหนดที่มีค่า</strong> <strong>${value}</strong>`);
             const result = this.search(this.root, value);
-            logProcess(result ? `<strong>พบโหนด</strong> ${value}` : `<strong>ไม่พบโหนด</strong> ${value}`);
+            logProcess(result ? `<strong>พบโหนด</strong> <strong>${value}</strong>
+            ` : `<strong>ไม่มีลูกโหนดเเล้ว ไม่พบโหนด</strong> <strong>${value}</strong>
+            `);
             return result;
         }
 
@@ -417,10 +478,11 @@
                 return node;
             }
             if (value < node.value) {
-                logProcess(`ค่า ${value} <strong>น้อยกว่าโหนด</strong> ${node.value} ย้ายไปซ้าย`);
+                
+                logProcess(`<strong>${value}</strong> <strong><</strong> <strong>${node.value}</strong> Check <strong>Left</strong>`);
                 return this.search(node.left, value);
             } else {
-                logProcess(`ค่า ${value} <strong>มากกว่าโหนด</strong> ${node.value} ย้ายไปขวา`);
+                logProcess(`<strong>${value}</strong> <strong>></strong> <strong>${node.value}</strong> Check <strong>Right</strong>`);
                 return this.search(node.right, value);
             }
         }
@@ -521,7 +583,8 @@
                 }
             }
         }
-
+        
+        
         const transform = { x: 0, y: 0, scale: 1, minScale: 0.5, maxScale: 3 };
         const bst = new BinarySearchTree();
 
@@ -576,6 +639,8 @@
         }
 
         function generateRandomTree() {
+            clearAll();
+
             const numNodes = parseInt(prompt("ใส่จำนวนโหนดที่ต้องการจะสุ่ม :", 7));
             if (isNaN(numNodes) || numNodes <= 0) {
                 alert("โปรดใส่เลขที่จะสุ่มให้ด้วยครับ");
@@ -628,4 +693,4 @@
         canvas.addEventListener('mouseup', () => { isDragging = false; });
     </script>
 </body>
-</html>
+</html> 
