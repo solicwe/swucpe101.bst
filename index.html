@@ -437,15 +437,18 @@
                 }
 
                 if (!node.left && !node.right) {
-                    logProcess(`ไม่พบลูกโหนด ลบได้ทันที`);
+                    logProcess(`ไม่พบลูกโหนด ลบได้ทันที
+                    `);
                     return null;
                 }
 
                 if (!node.left) {
-                    logProcess(`<strong>${value}</strong> มีเเค่ ลูกโหนดขวา ทำการลบเเบบ <strong>Successor</strong> เเทน`);
+                    logProcess(`<strong>${value}</strong> มีเเค่ ลูกโหนดขวา ทำการลบเเบบ <strong>Successor</strong> เเทน
+                    `);
                     return node.right;
                 } else if (!node.right) {
-                    logProcess(`<strong>${value}</strong> มีเเค่ ลูกโหนดซ้าย ทำการลบเเบบ <strong>Predecessor</strong> เเทน`);
+                    logProcess(`<strong>${value}</strong> มีเเค่ ลูกโหนดซ้าย ทำการลบเเบบ <strong>Predecessor</strong> เเทน
+                    `);
                     return node.left;
                 }
                 
